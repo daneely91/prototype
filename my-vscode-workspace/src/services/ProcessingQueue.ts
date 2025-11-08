@@ -2,7 +2,7 @@ import { VideoProcessor } from './VideoProcessor';
 import { promises as fs } from 'fs';
 import path from 'path';
 import type { AnalysisResult } from './AIProvider';
-import { GeminiProvider } from './GeminiProvider';
+import { GeminiProvider } from './providers/GeminiProvider';
 
 interface ProcessingJob {
   jobId: string;
