@@ -1,0 +1,42 @@
+{
+  "name": "gameplay-analyzer",
+  "version": "0.1.0",
+  "description": "AI-powered gameplay analysis and feedback using Claude",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "formidable": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "fluent-ffmpeg": "latest"
+  },
+  "devDependencies": {
+    "@types/formidable": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/fluent-ffmpeg": "latest",
+    "typescript": "latest"
+  }
+}
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@types/fluent-ffmpeg": "^2.1.28",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "fluent-ffmpeg": "^2.1.3",
+    "next": "^16.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^5.9.3"
+  }
+}

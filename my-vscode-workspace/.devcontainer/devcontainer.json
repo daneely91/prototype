@@ -1,0 +1,14 @@
+{
+  "name": "My VS Code Workspace",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "ms-vscode.typescript-javascript-grammar",
+    "esbenp.prettier-vscode"
+  ],
+  "postCreateCommand": "npm install",
+  "remoteUser": "vscode"
+}

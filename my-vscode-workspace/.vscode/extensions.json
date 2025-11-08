@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "ms-vscode.typescript-javascript-grammar",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.cpptools"
+    ]
+}

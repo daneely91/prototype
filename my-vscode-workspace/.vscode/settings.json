@@ -1,0 +1,21 @@
+{
+    "editor": {
+        "formatOnSave": true,
+        "tabSize": 2,
+        "insertSpaces": true
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/node_modules": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+
+    // Silence CSS unknown at-rule warnings for Tailwind and enable Tailwind language support
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore",
+    "tailwindCSS.includeLanguages": {
+        "typescript": "javascript",
+        "typescriptreact": "html"
+    }
+}

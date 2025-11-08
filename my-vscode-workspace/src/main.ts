@@ -1,0 +1,1 @@
+// This is the main entry point of the application. It contains the core logic and functionality of the workspace.
