@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import * as crypto from 'crypto';
-import { Anthropic } from '@anthropic-ai/sdk';
-
-// Initialize Anthropic client - will be configured via env vars
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || 'dummy-key-for-dev',
-});
 
 // Configure upload limits
 const MAX_FILE_SIZE = parseInt(process.env.MAX_UPLOAD_SIZE || '100') * 1024 * 1024; // Default 100MB
@@ -44,31 +38,44 @@ async function saveFormFile(req: NextRequest): Promise<{ filepath: string; origi
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/analyze - Starting upload handling');
+    
     // Ensure uploads directory exists
     const uploadsDir = path.join(process.cwd(), 'uploads');
     await fs.mkdir(uploadsDir, { recursive: true });
 
     // Handle the file upload
+    console.log('Parsing form data...');
     const videoFile = await saveFormFile(request);
 
     if (!videoFile) {
+      console.warn('No video file provided in form data');
       return NextResponse.json(
         { error: 'No video file provided' },
         { status: 400 }
       );
     }
 
-    // Validate file type
-    if (!ALLOWED_TYPES.includes(videoFile.mimetype)) {
+    console.log('File received:', videoFile.originalFilename, 'MIME:', videoFile.mimetype);
+
+    // Validate file type by extension, MIME type, or both
+    const filename = videoFile.originalFilename.toLowerCase();
+    const ext = path.extname(filename);
+    const isValidExtension = ['.mp4', '.mov', '.webm', '.mkv', '.avi'].includes(ext);
+    const isValidMime = ALLOWED_TYPES.includes(videoFile.mimetype) || videoFile.mimetype === 'application/octet-stream';
+    
+    if (!isValidExtension && !isValidMime) {
       await fs.unlink(videoFile.filepath); // Clean up invalid file
+      console.warn('Invalid file type:', videoFile.mimetype, 'extension:', ext);
       return NextResponse.json(
-        { error: 'Invalid file type. Supported formats: MP4, MOV, WebM' },
+        { error: 'Invalid file type. Supported formats: MP4, MOV, WebM, MKV, AVI' },
         { status: 400 }
       );
     }
 
     // Generate a unique ID for this analysis job
     const jobId = crypto.randomUUID();
+    console.log('Created job:', jobId);
     
     // Create job directory
     const jobDir = path.join(uploadsDir, jobId);
@@ -77,6 +84,7 @@ export async function POST(request: NextRequest) {
     // Move the file to the job directory
     const finalPath = path.join(jobDir, `original${path.extname(videoFile.originalFilename)}`);
     await fs.rename(videoFile.filepath, finalPath);
+    console.log('File moved to:', finalPath);
 
     // Persist initial job metadata so status can be read even if the in-memory queue
     // hasn't been observed by another request yet.
@@ -88,22 +96,31 @@ export async function POST(request: NextRequest) {
       videoUrl: finalPath
     };
     await fs.writeFile(path.join(jobDir, 'job.json'), JSON.stringify(initialJob, null, 2), 'utf8');
+    console.log('Job metadata saved');
 
     // Queue the processing job
+    console.log('Importing ProcessingQueue...');
     const { processingQueue } = await import('@/services/ProcessingQueue');
+    console.log('Adding job to queue...');
     processingQueue.addJob(jobId);
+    console.log('Job added successfully');
 
-    return NextResponse.json({
+    const response = {
       status: 'processing',
       jobId,
       message: 'Video received and queued for analysis',
       estimatedTime: '2-3 minutes'
-    });
+    };
+    
+    console.log('Sending response:', response);
+    return NextResponse.json(response);
 
   } catch (error) {
     console.error('Error processing video upload:', error);
+    const message = error instanceof Error ? error.message : 'Failed to process video upload';
+    console.error('Error details:', message);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to process video upload' },
+      { error: message },
       { status: 500 }
     );
   }

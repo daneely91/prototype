@@ -4,15 +4,11 @@ import path from 'path';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { jobId: string } }
+  { params }: { params: Promise<{ jobId: string }> }
 ) {
   try {
-    // `params` may be a Promise in some Next.js runtimes — unwrap if needed
-    let jobId: string | undefined = (params as any).jobId;
-    if (!jobId && typeof (params as any)?.then === 'function') {
-      const unwrapped = await (params as any);
-      jobId = unwrapped?.jobId;
-    }
+    // Unwrap the params Promise (required in Next.js 16)
+    const { jobId } = await params;
 
     if (!jobId) {
       return NextResponse.json(

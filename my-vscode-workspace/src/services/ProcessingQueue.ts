@@ -26,14 +26,21 @@ interface ProcessingJob {
 class ProcessingQueue {
   private jobs: Map<string, ProcessingJob>;
   private videoProcessor: VideoProcessor;
-  private aiProvider: GeminiProvider;
+  private aiProvider: GeminiProvider | null;
   private processing: boolean;
 
   constructor() {
     this.jobs = new Map();
     this.videoProcessor = new VideoProcessor();
-    this.aiProvider = new GeminiProvider();
+    this.aiProvider = null; // Lazy initialize to avoid startup issues
     this.processing = false;
+  }
+
+  private async getAIProvider(): Promise<GeminiProvider> {
+    if (!this.aiProvider) {
+      this.aiProvider = new GeminiProvider();
+    }
+    return this.aiProvider;
   }
 
   addJob(jobId: string) {
@@ -86,7 +93,8 @@ class ProcessingQueue {
       // AI Analysis
       job.status = 'analyzing';
       job.progress = 50;
-      const analysis = await this.aiProvider.analyzeGameplay(frames, metadata);
+      const aiProvider = await this.getAIProvider();
+      const analysis = await aiProvider.analyzeGameplay(frames, metadata);
       job.progress = 70;
   await this.persistJob(job).catch(console.error);
 

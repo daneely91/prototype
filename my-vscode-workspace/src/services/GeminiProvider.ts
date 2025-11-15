@@ -23,7 +23,15 @@ export class GeminiProvider implements AIProvider {
   ];
 
   constructor() {
-    this.genAI = new GoogleGenerativeAI(config.googleApiKey as string);
+    try {
+      this.genAI = new GoogleGenerativeAI(config.googleApiKey as string);
+    } catch (err) {
+      console.error('Failed to initialize GoogleGenerativeAI:', err);
+      // Fall back to mock mode if initialization fails
+      this.useMock = true;
+      this.mock = new MockAIProvider();
+      this.genAI = null as any; // Will not be used in mock mode
+    }
 
     this.systemPrompt = `You are an expert gameplay analysis AI. Analyze the gameplay footage frames and provide detailed, actionable feedback.
 
